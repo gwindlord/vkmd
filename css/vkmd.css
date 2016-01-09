@@ -1,0 +1,148 @@
+.audio .vkmd_download_btn_wrap,
+.audio .play_btn_wrap {
+  float: left !important;
+}
+
+.vkmd_audio_stats {
+  color: #ccc;
+}
+
+.vkmd_download_btn {
+  float: left;
+  display: block;
+  width: 16px;
+  height: 16px;
+  margin-left: 1px;
+  line-height: 0;
+  font-size: 0;
+  background-image: url('chrome-extension://__MSG_@@extension_id__/images/download.png');
+  background-size: 16px 16px;
+}
+
+.vkmd_progress_box {
+  position: relative;
+  padding: 3px 6px 3px 10px;
+  height: 14px;
+  font-size: 11px;
+  line-height: 14px;
+  color: #000;
+  background: #fff;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+td > .vkmd_progress_box {
+  padding: 3px 6px;
+}
+
+.audio.over .vkmd_progress_box {
+  background: #edf1f5;
+}
+
+.vkmd_progress_text {
+  float: left;
+  margin-right: 4px;
+}
+
+.vkmd_progress_bar {
+  position: relative;
+  top: 6px;
+  height: 4px;
+  background: #bac7d4;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.vkmd_progress_line {
+  display: block;
+  position: relative;
+  width: 0;
+  height: 100%;
+  background: #5c7a99;
+  border-radius: inherit;
+}
+
+#audio.new .audio.current .vkmd_progress_box,
+#pad_playlist_panel .audio.current .vkmd_progress_box {
+  color: #fff;
+  background: #5f7fa2;
+}
+
+#audio.new .audio.current .vkmd_progress_bar,
+#pad_playlist_panel .audio.current .vkmd_progress_bar {
+  background: #bac7d4;
+}
+
+#audio.new .audio.current .vkmd_progress_line,
+#pad_playlist_panel .audio.current .vkmd_progress_line {
+  background: #d8dee4;
+}
+
+.im_log_body .play_btn_wrap,
+.wall_audio .play_btn_wrap,
+.audio_results .play_btn_wrap,
+#profile_audios .play_btn_wrap,
+#public_audios .play_btn_wrap,
+#choose_audio_rows .play_btn_wrap,
+#group_audios .play_btn_wrap,
+#search_auto_rows .play_btn_wrap {
+  padding: 6px 0 6px 6px !important;
+}
+
+.im_log_body .vkmd_download_btn_wrap,
+.wall_audio .vkmd_download_btn_wrap,
+.audio_results .vkmd_download_btn_wrap,
+#profile_audios .vkmd_download_btn_wrap,
+#public_audios .vkmd_download_btn_wrap,
+#choose_audio_rows .vkmd_download_btn_wrap,
+#group_audios .vkmd_download_btn_wrap,
+#search_auto_rows .vkmd_download_btn_wrap {
+  padding: 6px 6px 6px 0 !important;
+}
+
+.audio tr:first-child td {
+  min-width: 45px !important;
+}
+
+#audios_list .vkmd_download_btn_wrap,
+#pad_playlist_panel .vkmd_download_btn_wrap {
+  padding: 9px 9px 9px 0 !important;
+}
+
+#audios_list .play_btn_wrap,
+#pad_playlist_panel .play_btn_wrap {
+  padding: 9px 0 9px 9px !important;
+}
+
+#audio.new .audio .info {
+  width: 373px !important;
+}
+
+#audio.new .audio .info .title_wrap {
+  width: 320px !important;
+}
+
+#audio.new .audio.over .info .title_wrap {
+  width: 290px !important;
+}
+
+#profile_audios .title_wrap {
+  width: 108px !important;
+}
+
+#pad_playlist_panel .audio .info {
+  width: 370px !important;
+}
+
+#pad_playlist_panel .audio .title_wrap {
+  width: 330px !important;
+}
+
+#search_content td.results .audio .title_wrap {
+  width: 340px !important;
+}
+
+.narrow_column .audio .title_wrap {
+  width: 115px !important;
+}

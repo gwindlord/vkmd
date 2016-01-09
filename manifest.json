@@ -1,0 +1,60 @@
+{
+  "author": "Denys Mikhalenko <denys@prontiol.com>",
+  "background": {
+    "persistent": false,
+    "scripts": [
+      "js/background.js"
+    ]
+  },
+  "content_scripts": [
+    {
+      "css": [
+        "css/vkmd.css"
+      ],
+      "js": [
+        "js/vkmd.js"
+      ],
+      "matches": [
+        "*://vkontakte.ru/*",
+        "*://vk.com/*"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "default_locale": "en",
+  "description": "__MSG_plugin_description__",
+  "externally_connectable": {
+    "ids": []
+  },
+  "icons": {
+    "128": "images/download.png",
+    "16": "images/download.png",
+    "256": "images/download.png",
+    "32": "images/download.png",
+    "48": "images/download.png"
+  },
+  "manifest_version": 2,
+  "minimum_chrome_version": "18",
+  "name": "VK Music Downloader",
+  "offline_enabled": false,
+  "options_page": "options.html",
+  "options_ui": {
+    "chrome_style": true,
+    "page": "options.html"
+  },
+  "permissions": [
+    "tabs",
+    "*://vkontakte.ru/*",
+    "*://vk.com/*",
+    "*://*.vk.me/*",
+    "*://*.vk-cdn.net/*"
+  ],
+  "short_name": "VKMD",
+  "storage": {
+    "managed_schema": "storage.json"
+  },
+  "version": "1.0.0",
+  "web_accessible_resources": [
+    "images/download.png"
+  ]
+}

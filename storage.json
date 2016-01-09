@@ -1,0 +1,20 @@
+{
+  "type": "object",
+  "properties": {
+    "displayBitrate": {
+      "title": "Display audio bitrate",
+      "description": "If set to true, audio bitrate will be requested from the server",
+      "type": "boolean"
+    },
+    "displaySize": {
+      "title": "Display audio size",
+      "description": "If set to true, audio size will be requested from the server",
+      "type": "boolean"
+    },
+    "friendlyNames": {
+      "title": "Save files with user friendly names",
+      "description": "If set to true, audio files will be saved with user friendly names",
+      "type": "boolean"
+    }
+  }
+}
