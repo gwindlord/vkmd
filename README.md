@@ -1,5 +1,5 @@
 # VK Music Downloader
-Google Chrome plugin for downloading music from VK
+Google Chrome extension for downloading music from VK
 
 ## Installing
 
