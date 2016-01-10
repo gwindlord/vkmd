@@ -5,7 +5,12 @@ chrome.runtime.onMessage.addListener(
         chrome.storage.sync.set(request.payload, sendResponse);
         break;
       case 'getOptions':
-        chrome.storage.sync.get(null, sendResponse);
+        chrome.storage.sync.get({
+          displayBitrate: true,
+          displaySize: true,
+          friendlyNames: true,
+          fancyLoading: true
+        }, sendResponse);
         break;
     }
     return true;
