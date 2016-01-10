@@ -16,7 +16,7 @@ function downloadAs(url, filename, handlers) {
   xhr.addEventListener('loadend', handlers.end);
   xhr.addEventListener('progress', handlers.progress);
   xhr.addEventListener('load', function() {
-    saveAs(new window.Blob([this.response], {type: 'octet/stream'}), filename)
+    saveAs(new window.Blob([this.response], {type: 'octet/stream'}), filename);
   });
   xhr.open('GET', url, true);
   xhr.send()
