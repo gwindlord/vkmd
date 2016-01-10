@@ -33,13 +33,11 @@ function createElement(className, appendTo, tagName) {
   return div;
 }
 
-function createDownloadButton(url, title) {
+function createDownloadButton(url, filename) {
   var elWrap = createElement('vkmd_download_btn_wrap');
   var elButton = createElement('vkmd_download_btn', elWrap, 'a');
-  elButton.href = url + '?dl=1';
-  if (options.friendlyName) {
-    elButton.download = getFilename(title);
-  }
+  elButton.href = url;
+  elButton.download = filename;
   return elWrap;
 }
 
@@ -84,7 +82,7 @@ function attachDownloadButton(elAudio) {
   var duration = audioInfo[1];
   var filename = options.friendlyNames ? getFilename(title) : url.split('/').pop().split('?').shift();
   // creating download button
-  var elDownloadButton = createDownloadButton(url, title);
+  var elDownloadButton = createDownloadButton(url, filename);
   elPlaybox.appendChild(elDownloadButton);
   // creating progress box
   var elProgressBox = createProgressBox();
