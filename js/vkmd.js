@@ -101,32 +101,35 @@ function attachDownloadButton(elAudio) {
     progressBoxHeight = elProgressBox.offsetHeight;
   }
   elProgressBox.style.display = 'none';
-  elDownloadButton.addEventListener('click', function(event) {
-    event.stopPropagation();
-    event.preventDefault();
-    // prevent multiple download of the same file
-    if (elDownloadButton.vkmdLoading) {
-      return;
-    }
-    downloadAs(url, filename, {
-      start: function() {
-        elDownloadButton.vkmdLoading = true;
-        elProgressBox.style.display = 'block';
-        adjustTop(elAudio, progressBoxHeight);
-      },
-      end: function() {
-        elDownloadButton.vkmdLoading = false;
-        elProgressBox.style.display = 'none';
-        adjustTop(elAudio, -progressBoxHeight);
-      },
-      progress: function(event) {
-        if (event.lengthComputable) {
-          elProgressLine.style.width = (event.loaded / event.total * 100) + '%';
-        }
+  // if fancyLoading is enabled, attach a special loader to download button
+  if (options.fancyLoading) {
+    elDownloadButton.addEventListener('click', function(event) {
+      event.stopPropagation();
+      event.preventDefault();
+      // prevent multiple download of the same file
+      if (elDownloadButton.vkmdLoading) {
+        return;
       }
+      downloadAs(url, filename, {
+        start: function() {
+          elDownloadButton.vkmdLoading = true;
+          elProgressBox.style.display = 'block';
+          adjustTop(elAudio, progressBoxHeight);
+        },
+        end: function() {
+          elDownloadButton.vkmdLoading = false;
+          elProgressBox.style.display = 'none';
+          adjustTop(elAudio, -progressBoxHeight);
+        },
+        progress: function(event) {
+          if (event.lengthComputable) {
+            elProgressLine.style.width = (event.loaded / event.total * 100) + '%';
+          }
+        }
+      });
     });
-  });
-
+  }
+  // if displayBitrate or displaySize is enabled, query and show this information
   if (options.displayBitrate || options.displaySize) {
     var xhr = new XMLHttpRequest();
     xhr.withCredentials = true;

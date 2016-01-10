@@ -15,6 +15,11 @@
       "title": "Save files with user friendly names",
       "description": "If set to true, audio files will be saved with user friendly names",
       "type": "boolean"
+    },
+    "fancyLoading": {
+      "title": "Load files with fancy progress bar",
+      "description": "If set to true, loading progress will be displayed via inline loader bar",
+      "type": "boolean"
     }
   }
 }
