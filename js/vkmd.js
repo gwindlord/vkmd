@@ -23,7 +23,7 @@ function downloadAs(url, filename, handlers) {
 }
 
 function getFilename(title) {
-  return title.replace(/[\\~#%&*{}/:<>?|\"]/gi, '_') + '.mp3';
+  return title.replace(/[\\~#%&*{}/:<>?|"]/gi, '_') + '.mp3';
 }
 
 function createElement(className, appendTo, tagName) {
