@@ -3,6 +3,10 @@
   float: left !important;
 }
 
+.audio .play_btn {
+  width: 51px !important;
+}
+
 .vkmd_audio_stats {
   color: #ccc;
 }
