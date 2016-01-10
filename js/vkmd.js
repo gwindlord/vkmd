@@ -9,7 +9,7 @@ function saveAs(blob, filename) {
   window.URL.revokeObjectURL(url);
 }
 
-function saveHandler(url, filename, handlers) {
+function downloadAs(url, filename, handlers) {
   var xhr = new XMLHttpRequest();
   xhr.responseType = 'blob';
   xhr.addEventListener('loadstart', handlers.start);
@@ -90,6 +90,7 @@ function attachDownloadButton(elAudio) {
   var elProgressBox = createProgressBox();
   var elProgressLine = elProgressBox.querySelector('.vkmd_progress_line');
   var progressBoxHeight = 0;
+  // for tables create additional TR for progress box
   if (elPlaybox.parentNode.nodeName == 'TR') {
     var elTable = elPlaybox.parentNode.parentNode;
     var elTr = createElement('', elTable, 'tr');
@@ -102,14 +103,14 @@ function attachDownloadButton(elAudio) {
     progressBoxHeight = elProgressBox.offsetHeight;
   }
   elProgressBox.style.display = 'none';
-
   elDownloadButton.addEventListener('click', function(event) {
     event.stopPropagation();
     event.preventDefault();
+    // prevent multiple download of the same file
     if (elDownloadButton.vkmdLoading) {
       return;
     }
-    saveHandler(url, filename, {
+    downloadAs(url, filename, {
       start: function() {
         elDownloadButton.vkmdLoading = true;
         elProgressBox.style.display = 'block';
@@ -131,49 +132,46 @@ function attachDownloadButton(elAudio) {
   if (options.displayBitrate || options.displaySize) {
     var xhr = new XMLHttpRequest();
     xhr.withCredentials = true;
-    xhr.onload = function() {
+    xhr.addEventListener('load', function() {
       var contentLength = this.getResponseHeader('Content-Length');
       var stats = [];
-
       if (options.displayBitrate) {
         stats.push(Math.floor(contentLength * 8 / 1000 / duration) + ' kbps');
       }
       if (options.displaySize) {
         stats.push((contentLength / (1024 * 1024)).toFixed(2) + ' Mb');
       }
-
       var elBitrate = createElement('vkmd_audio_stats', elTitleWrap, 'span');
       elBitrate.innerText = ' [' + stats.join(' / ') + '] ';
-
-    };
+    });
     xhr.open('HEAD', url, true);
     xhr.send();
   }
 }
 
 function processAudioNode(node) {
-  if (!node.vkmd) {
+  if (node && !node.vkmd && node.nodeType === 1 && node.classList.contains('audio')) {
     node.vkmd = true;
     attachDownloadButton(node);
   }
 }
 
+function processAudioNodes(node) {
+  if (node.nodeType === 1) {
+    processAudioNode(node);
+    Array.prototype.forEach.call(node.querySelectorAll('.audio'), processAudioNode);
+  }
+}
+
 chrome.runtime.sendMessage({command: 'getOptions'}, function(response) {
+  // process existing nodes
+  processAudioNodes(document.documentElement);
   // processing options
   options = response;
   // observing DOM modifications
   var observer = new MutationObserver(function(mutations) {
     mutations.forEach(function(mutation) {
-      Array.prototype.forEach.call(mutation.addedNodes, function(node) {
-        if (node.nodeType === 1) {
-          if (node.classList.contains('audio')) {
-            processAudioNode(node);
-          }
-          Array.prototype.forEach.call(node.querySelectorAll('.audio'), function(node) {
-            processAudioNode(node);
-          });
-        }
-      });
+      Array.prototype.forEach.call(mutation.addedNodes, processAudioNodes);
     });
   });
   observer.observe(document.documentElement, {childList: true, subtree: true});
