@@ -1,0 +1,15 @@
+{
+  "name": "vkmd",
+  "version": "1.0.0",
+  "description": "VK Music Downloader",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prontiol/vkmd.git"
+  },
+  "author": "Denys Mikhalenko <denys@prontiol.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/prontiol/vkmd/issues"
+  },
+  "homepage": "https://github.com/prontiol/vkmd#readme"
+}
