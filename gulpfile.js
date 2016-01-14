@@ -3,6 +3,12 @@ var uglify = require('gulp-uglify');
 var minifyCss = require('gulp-minify-css');
 var minifyHtml = require('gulp-minify-html');
 var imagemin = require('gulp-imagemin');
+var zip = require('gulp-zip');
+var del = require('del');
+
+gulp.task('clean', function() {
+  del(['build']);
+});
 
 gulp.task('html', function() {
   gulp.src(['*.html'])
@@ -33,4 +39,10 @@ gulp.task('misc', function() {
   .pipe(gulp.dest('build'));
 });
 
-gulp.task('default', ['html', 'css', 'js', 'images', 'misc']);
+gulp.task('zip', function() {
+  gulp.src('build/**/*')
+  .pipe(zip('vkmd.zip'))
+  .pipe(gulp.dest('dist'));
+});
+
+gulp.task('default', ['clean', 'html', 'css', 'js', 'images', 'misc']);
