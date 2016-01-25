@@ -90,7 +90,8 @@ td > .vkmd_progress_box {
 #public_audios .play_btn_wrap,
 #choose_audio_rows .play_btn_wrap,
 #group_audios .play_btn_wrap,
-#search_auto_rows .play_btn_wrap {
+#search_auto_rows .play_btn_wrap,
+#wk_history_rows .play_btn_wrap {
   padding: 6px 0 6px 6px !important;
 }
 
@@ -101,7 +102,8 @@ td > .vkmd_progress_box {
 #public_audios .vkmd_download_btn_wrap,
 #choose_audio_rows .vkmd_download_btn_wrap,
 #group_audios .vkmd_download_btn_wrap,
-#search_auto_rows .vkmd_download_btn_wrap {
+#search_auto_rows .vkmd_download_btn_wrap,
+#wk_history_rows .vkmd_download_btn_wrap {
   padding: 6px 6px 6px 0 !important;
 }
 
