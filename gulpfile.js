@@ -35,7 +35,7 @@ gulp.task('images', function() {
 });
 
 gulp.task('misc', function() {
-  gulp.src(['manifest.json', 'storage.json', 'LICENSE'])
+  gulp.src(['_locales/**/*.json', 'manifest.json', 'storage.json', 'LICENSE'], {base: '.'})
   .pipe(gulp.dest('build'));
 });
 
