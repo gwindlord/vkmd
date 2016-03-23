@@ -52,7 +52,7 @@
   "storage": {
     "managed_schema": "storage.json"
   },
-  "version": "1.0.1",
+  "version": "1.0.2",
   "web_accessible_resources": [
     "images/download.png"
   ]
