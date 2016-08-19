@@ -175,5 +175,11 @@ chrome.runtime.sendMessage({command: 'getOptions'}, function(response) {
       Array.prototype.forEach.call(mutation.addedNodes, processAudioNodes);
     });
   });
-  observer.observe(document.documentElement, {childList: true, subtree: true});
+  var config = {
+    childList: true,
+    attributes: false,
+    characterData: false,
+    subtree: true
+  };
+  observer.observe(document.documentElement, config);
 });
