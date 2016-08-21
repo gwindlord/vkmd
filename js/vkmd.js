@@ -1,4 +1,26 @@
 var options = {};
+var cache = {};
+var prefetchIds = [];
+var prefetchTimeoutId = null;
+
+var AUDIO_ITEM_INDEX_ID = 0;
+var AUDIO_ITEM_INDEX_OWNER_ID = 1;
+var AUDIO_ITEM_INDEX_URL = 2;
+var AUDIO_ITEM_INDEX_TITLE = 3;
+var AUDIO_ITEM_INDEX_ARTIST = 4;
+var AUDIO_ITEM_INDEX_DURATION = 5;
+
+function createElement(className) {
+  var div = document.createElement('div');
+  div.className = className;
+  return div;
+}
+
+function decodeHtml(html) {
+  var textarea = document.createElement("textarea");
+  textarea.innerHTML = html;
+  return textarea.value;
+}
 
 function saveAs(blob, filename) {
   var url = window.URL.createObjectURL(blob);
@@ -18,140 +40,130 @@ function downloadAs(url, filename, handlers) {
   xhr.addEventListener('load', function() {
     saveAs(new window.Blob([this.response], {type: 'octet/stream'}), filename);
   });
-  xhr.open('GET', url, true);
+  xhr.open('GЕT', url, true);
   xhr.send()
 }
 
 function getFilename(title) {
-  return title.replace(/[\\~#%&*{}/:<>?|"]/gi, '_') + '.mp3';
+  return decodeHtml(title).replace(/[\\~#%&*{}/:<>?|"]/gi, '_') + '.mp3';
 }
 
-function createElement(className, appendTo, tagName) {
-  var div = document.createElement(tagName || 'div');
-  className && (div.className = className);
-  appendTo && appendTo.appendChild(div);
-  return div;
-}
-
-function createDownloadButton(url, filename) {
-  var elWrap = createElement('vkmd_download_btn_wrap');
-  var elButton = createElement('vkmd_download_btn', elWrap, 'a');
-  elButton.href = url;
-  elButton.download = filename;
-  return elWrap;
-}
-
-function createProgressBox() {
-  var elProgressBox = createElement('vkmd_progress_box');
-  var elProgressText = createElement('vkmd_progress_text', elProgressBox);
-  elProgressText.innerHTML = 'Loading:';
-  var elProgressBar = createElement('vkmd_progress_bar', elProgressBox);
-  createElement('vkmd_progress_line', elProgressBar);
-  return elProgressBox;
-}
-
-function adjustTop(startNode, mod) {
-  var id = '#' + startNode.id;
-  var nodeList = startNode.parentNode.querySelectorAll(id + ' ~ *');
-  Array.prototype.forEach.call(nodeList, function(node) {
-    var top = parseFloat(node.style.top);
-    if (top !== void 0) {
-      node.style.top = (top + mod) + 'px';
+function downloadAudio(audioInfo) {
+  var fullId = getFullId(audioInfo);
+  var url = audioInfo[AUDIO_ITEM_INDEX_URL];
+  var title = audioInfo[AUDIO_ITEM_INDEX_TITLE];
+  var artist = audioInfo[AUDIO_ITEM_INDEX_ARTIST];
+  var filename = options.friendlyNames ? getFilename(artist + ' - ' + title) : url.split('/').pop().split('?').shift();
+  var elButton = document.querySelector('.vkmd_download_btn[data-full-id="' + fullId + '"]');
+  downloadAs(url, filename, {
+    start: function() {
+      elButton.innerText = '0%';
+      elButton.classList.add('vkmd_download_in_progress');
+    },
+    progress: function(event) {
+      if (event.lengthComputable) {
+        elButton.innerText = (Math.round(event.loaded / event.total * 100)) + '%';
+      }
+    },
+    end: function() {
+      elButton.innerText = '';
+      elButton.classList.remove('vkmd_download_in_progress');
     }
+  })
+}
+
+function getAudioInfo(ids, callback) {
+  var xhr = new XMLHttpRequest();
+  xhr.addEventListener('load', function() {
+    var responseText = xhr.responseText.replace(/^<!--/, '').replace(/-<>-(!?)>/g, '--$1>');
+    var splittedText = responseText.split('<!>');
+    var jsonText = splittedText[5];
+    var prefix = jsonText.substr(0, 7);
+    if (prefix !== '<!json>') {
+      return;
+    }
+    var json = JSON.parse(jsonText.substr(7));
+    var audioInfos = json || [];
+    audioInfos.forEach(callback)
   });
+  xhr.open('PОST', '/al_audio.php', true);
+  xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+  xhr.send('act=reload_audio&al=1&ids=' + ids.join(','))
+}
+
+function getFullId(audioInfo) {
+  return [audioInfo[AUDIO_ITEM_INDEX_OWNER_ID], audioInfo[AUDIO_ITEM_INDEX_ID]].join('_');
+}
+
+function fetchStats(audioInfo) {
+  var fullId = getFullId(audioInfo);
+  var url = audioInfo[AUDIO_ITEM_INDEX_URL];
+  var duration = audioInfo[AUDIO_ITEM_INDEX_DURATION];
+  var xhr = new XMLHttpRequest();
+  xhr.withCredentials = true;
+  xhr.addEventListener('load', function() {
+    var contentLength = this.getResponseHeader('Content-Length');
+    updateStats(fullId, duration, contentLength)
+  });
+  xhr.open('HЕAD', url, true);
+  xhr.send();
+}
+
+function prefetch() {
+  getAudioInfo(prefetchIds, fetchStats);
+  prefetchIds = [];
+  prefetchTimeoutId = null;
+}
+
+function updateStats(fullId, duration, contentLength) {
+  var stats = [];
+  if (options.displayBitrate) {
+    stats.push(Math.floor(contentLength * 8 / 1000 / duration) + 'k');
+  }
+  if (options.displaySize) {
+    stats.push((contentLength / (1024 * 1024)).toFixed(2) + 'M');
+  }
+  var elStats = document.querySelector('.vkmd_audio_stats[data-full-id="' + fullId + '"]');
+  elStats.innerHTML = stats.join('<br>');
 }
 
 function attachDownloadButton(elAudio) {
-  // retrieving containers
-  var elPlayButtonWrap = elAudio.querySelector('.play_btn_wrap');
-  var elPlaybox = elPlayButtonWrap && elPlayButtonWrap.parentNode;
-  if (!elPlaybox) {
+  var elPlayButtonWrap = elAudio.querySelector('.audio_play_wrap');
+  if (!elPlayButtonWrap) {
     return;
   }
-  // retrieving audio title
-  var elTitleWrap = elAudio.querySelector('.title_wrap');
-  var elArtist = elTitleWrap.querySelector('a');
-  var elTitle = elTitleWrap.querySelector('.title');
-  var artist = elArtist.innerText.trim();
-  var track = elTitle.innerText.trim();
-  var title = artist + ' - ' + track;
-  // retrieving audio info (url and duration)
-  var elAudioInfo = elAudio.querySelector('input[type="hidden"]');
-  var audioInfo = elAudioInfo.value.trim().split(',');
-  var url = audioInfo[0];
-  var duration = audioInfo[1];
-  var filename = options.friendlyNames ? getFilename(title) : url.split('/').pop().split('?').shift();
-  // creating download button
-  var elDownloadButton = createDownloadButton(url, filename);
-  elPlaybox.appendChild(elDownloadButton);
-  // creating progress box
-  var elProgressBox = createProgressBox();
-  var elProgressLine = elProgressBox.querySelector('.vkmd_progress_line');
-  var progressBoxHeight = 0;
-  // for tables create additional TR for progress box
-  if (elPlaybox.parentNode.nodeName == 'TR') {
-    var elTable = elPlaybox.parentNode.parentNode;
-    var elTr = createElement('', elTable, 'tr');
-    var elTd = createElement('', elTr, 'td');
-    elTd.colSpan = 2;
-    elTd.appendChild(elProgressBox);
-  }
-  if (elPlaybox.parentNode.nodeName == 'DIV') {
-    elAudio.appendChild(elProgressBox);
-    progressBoxHeight = elProgressBox.offsetHeight;
-  }
-  elProgressBox.style.display = 'none';
-  // if fancyLoading is enabled, attach a special loader to download button
-  if (options.fancyLoading) {
-    elDownloadButton.addEventListener('click', function(event) {
-      event.stopPropagation();
-      event.preventDefault();
-      // prevent multiple download of the same file
-      if (elDownloadButton.vkmdLoading) {
-        return;
-      }
-      downloadAs(url, filename, {
-        start: function() {
-          elDownloadButton.vkmdLoading = true;
-          elProgressBox.style.display = 'block';
-          adjustTop(elAudio, progressBoxHeight);
-        },
-        end: function() {
-          elDownloadButton.vkmdLoading = false;
-          elProgressBox.style.display = 'none';
-          adjustTop(elAudio, -progressBoxHeight);
-        },
-        progress: function(event) {
-          if (event.lengthComputable) {
-            elProgressLine.style.width = (event.loaded / event.total * 100) + '%';
-          }
-        }
-      });
-    });
-  }
+  var fullId = elAudio.dataset.fullId;
+  var elWrap = createElement('vkmd_download_btn_wrap');
+  var elButton = createElement('vkmd_download_btn');
+  elButton.setAttribute('data-full-id', fullId);
+  elWrap.appendChild(elButton);
+  elButton.addEventListener('click', function(event) {
+    event.stopPropagation();
+    getAudioInfo([fullId], downloadAudio);
+  });
+  elPlayButtonWrap.parentNode.insertBefore(elButton, elPlayButtonWrap.nextSibling);
+
   // if displayBitrate or displaySize is enabled, query and show this information
   if (options.displayBitrate || options.displaySize) {
-    var xhr = new XMLHttpRequest();
-    xhr.withCredentials = true;
-    xhr.addEventListener('load', function() {
-      var contentLength = this.getResponseHeader('Content-Length');
-      var stats = [];
-      if (options.displayBitrate) {
-        stats.push(Math.floor(contentLength * 8 / 1000 / duration) + ' kbps');
-      }
-      if (options.displaySize) {
-        stats.push((contentLength / (1024 * 1024)).toFixed(2) + ' Mb');
-      }
-      var elBitrate = createElement('vkmd_audio_stats', elTitleWrap, 'span');
-      elBitrate.innerText = ' [' + stats.join(' / ') + '] ';
-    });
-    xhr.open('HEAD', url, true);
-    xhr.send();
+    var elStats = createElement('vkmd_audio_stats');
+    elStats.setAttribute('data-full-id', fullId);
+    elPlayButtonWrap.parentNode.insertBefore(elStats, elPlayButtonWrap.nextSibling);
+    prefetchIds.push(fullId);
+    if (prefetchTimeoutId) {
+      clearTimeout(prefetchTimeoutId);
+      prefetchTimeoutId = null;
+    }
+    if (prefetchIds.length >= 10) {
+      prefetch();
+    }
+    if (prefetchIds.length > 0) {
+      prefetchTimeoutId = setTimeout(prefetch, 1000);
+    }
   }
 }
 
 function processAudioNode(node) {
-  if (node && !node.vkmd && node.nodeType === 1 && node.classList.contains('audio')) {
+  if (node && !node.vkmd && node.nodeType === 1 && node.classList.contains('_audio_row')) {
     node.vkmd = true;
     attachDownloadButton(node);
   }
@@ -160,7 +172,7 @@ function processAudioNode(node) {
 function processAudioNodes(node) {
   if (node.nodeType === 1) {
     processAudioNode(node);
-    Array.prototype.forEach.call(node.querySelectorAll('.audio'), processAudioNode);
+    Array.prototype.forEach.call(node.querySelectorAll('._audio_row'), processAudioNode);
   }
 }
 
@@ -175,11 +187,8 @@ chrome.runtime.sendMessage({command: 'getOptions'}, function(response) {
       Array.prototype.forEach.call(mutation.addedNodes, processAudioNodes);
     });
   });
-  var config = {
+  observer.observe(document.documentElement, {
     childList: true,
-    attributes: false,
-    characterData: false,
     subtree: true
-  };
-  observer.observe(document.documentElement, config);
+  });
 });

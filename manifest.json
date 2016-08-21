@@ -27,11 +27,11 @@
     "ids": []
   },
   "icons": {
-    "128": "images/download.png",
-    "16": "images/download.png",
-    "256": "images/download.png",
-    "32": "images/download.png",
-    "48": "images/download.png"
+    "128": "images/icon.png",
+    "16": "images/icon.png",
+    "256": "images/icon.png",
+    "32": "images/icon.png",
+    "48": "images/icon.png"
   },
   "manifest_version": 2,
   "minimum_chrome_version": "18",
@@ -52,8 +52,5 @@
   "storage": {
     "managed_schema": "storage.json"
   },
-  "version": "1.0.2",
-  "web_accessible_resources": [
-    "images/download.png"
-  ]
+  "version": "2.0.0"
 }

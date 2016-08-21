@@ -8,8 +8,7 @@ chrome.runtime.onMessage.addListener(
         chrome.storage.sync.get({
           displayBitrate: true,
           displaySize: true,
-          friendlyNames: true,
-          fancyLoading: true
+          friendlyNames: true
         }, sendResponse);
         break;
     }

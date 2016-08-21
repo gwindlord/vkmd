@@ -45,4 +45,6 @@ gulp.task('zip', function() {
   .pipe(gulp.dest('dist'));
 });
 
-gulp.task('default', ['clean', 'html', 'css', 'js', 'images', 'misc']);
+gulp.task('build', ['html', 'css', 'js', 'images', 'misc']);
+
+gulp.task('default', ['clean', 'build', 'zip']);
