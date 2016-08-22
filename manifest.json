@@ -21,7 +21,7 @@
       "run_at": "document_start"
     }
   ],
-  "default_locale": "en",
+  "default_locale": "ru",
   "description": "__MSG_plugin_description__",
   "externally_connectable": {
     "ids": []
