@@ -3,13 +3,12 @@
   align-items: center;
   float: right;
   margin-left: 4px;
-  width: 28px;
+  width: 24px;
   height: 24px;
   color: #c4d1de;
   font-size: 8px;
   white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .vkmd_download_btn {
@@ -46,4 +45,21 @@
 
 .vkmd_download_btn.vkmd_download_in_progress:before {
   display: none;
+}
+
+.audio_inline_player .audio_inline_player_left {
+  padding: 0 0 0 30px !important;
+}
+
+.audio_inline_player .audio_inline_player_right {
+  width: 60px !important;
+  margin-left: 5px !important;
+}
+
+.audio_inline_player {
+  margin-top: -5px !important;
+}
+
+.audio_hq_label_show .audio_row.hq .audio_hq_label, .audio_search_rows .audio_row.hq .audio_hq_label {
+  margin-right: 1px !important;
 }
