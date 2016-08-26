@@ -1,0 +1,18 @@
+{
+  "plugin_name": {
+    "message": "VK Music Downloader"
+  },
+  "plugin_description": {
+    "message": "Download music from new vk.com website in one click without ads"
+  },
+  "display_bitrate": {
+    "message": "Display audio bitrate"
+  },
+  "display_size": {
+    "message": "Display file size"
+  },
+  "friendly_names": {
+    "message": "Download with friendly file names"
+  }
+
+}
