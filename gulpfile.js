@@ -1,6 +1,6 @@
 var gulp = require('gulp');
 var uglify = require('gulp-uglify');
-var minifyCss = require('gulp-minify-css');
+var cleanCss = require('gulp-clean-css');
 var minifyHtml = require('gulp-minify-html');
 var imagemin = require('gulp-imagemin');
 var zip = require('gulp-zip');
@@ -18,7 +18,7 @@ gulp.task('html', function() {
 
 gulp.task('css', function() {
   gulp.src(['css/*.css'])
-  .pipe(minifyCss())
+  .pipe(cleanCss())
   .pipe(gulp.dest('build/css'));
 });
 
