@@ -1,4 +1,5 @@
 var gulp = require('gulp');
+var runSequence = require('run-sequence');
 var uglify = require('gulp-uglify');
 var cleanCss = require('gulp-clean-css');
 var minifyHtml = require('gulp-minify-html');
@@ -47,4 +48,7 @@ gulp.task('zip', function() {
 
 gulp.task('build', ['html', 'css', 'js', 'images', 'misc']);
 
-gulp.task('default', ['clean', 'build', 'zip']);
+gulp.task('default', function(callback) {
+  runSequence('clean', 'build', 'zip', callback);
+});
+
