@@ -43,14 +43,12 @@
     "page": "options.html"
   },
   "permissions": [
-    "*://vkontakte.ru/*",
-    "*://vk.com/*",
-    "*://*.vk.me/*",
-    "*://*.vk-cdn.net/*"
+    "http://*/*",
+    "https://*/*"
   ],
   "short_name": "VKMD",
   "storage": {
     "managed_schema": "storage.json"
   },
-  "version": "2.0.5"
+  "version": "3.0.0"
 }
