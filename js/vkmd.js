@@ -67,6 +67,7 @@
   }
   var _audio_unmask_source = new AudioUnmaskSource();
 
+  var xhrs = {};
   var options = {};
   var prefetchIds = [];
   var prefetchTimeoutId = null;
@@ -100,13 +101,17 @@
   }
 
   function downloadAs(url, filename, handlers) {
-    var xhr = new XMLHttpRequest();
+    var xhr = xhrs[url] =  new XMLHttpRequest();
     xhr.responseType = 'blob';
     xhr.addEventListener('loadstart', handlers.start);
     xhr.addEventListener('loadend', handlers.end);
     xhr.addEventListener('progress', handlers.progress);
     xhr.addEventListener('load', function() {
+      delete xhrs[url];
       saveAs(new window.Blob([this.response], {type: 'octet/stream'}), filename);
+    });
+    xhr.addEventListener('error', function() {
+      delete xhrs[url];
     });
     xhr.open('GЕT', url, true);
     xhr.send()
@@ -124,6 +129,19 @@
     var unmaskedUrl = _audio_unmask_source.audioUnmaskSource(url);
     var filename = options.friendlyNames ? getFilename(artist + ' - ' + title) : url.split('/').pop().split('?').shift();
     var elButton = document.querySelector('.vkmd_download_btn[data-full-id="' + fullId + '"]');
+    if (elButton.classList.contains('vkmd_download_in_progress')) {
+      var xhr = xhrs[unmaskedUrl];
+      if (xhr) {
+        xhr.abort();
+        delete xhrs[unmaskedUrl];
+      }
+      elButton.innerText = '';
+      elButton.classList.remove('vkmd_download_in_progress');
+      return;
+    } else {
+      elButton.innerText = '...';
+      elButton.classList.add('vkmd_download_in_progress');
+    }
     downloadAs(unmaskedUrl, filename, {
       start: function() {
         elButton.innerText = '0%';
@@ -246,11 +264,33 @@
     }
   }
 
+  function styleOpaqueIcon() {
+    var style = document.createElement('style');
+    style.innerHTML = '\
+.vkmd_download_btn:not(.vkmd_download_in_progress),\
+.vkmd_download_btn:not(.vkmd_download_in_progress):before{\
+  background-color: rgba(0,0,0,.04);\
+  opacity:.5;\
+  transition:all .2s ease-in;\
+}\
+.audio_row:hover .vkmd_download_btn:not(.vkmd_download_in_progress),\
+.audio_row:hover .vkmd_download_btn:not(.vkmd_download_in_progress):before{\
+  opacity:1;\
+}\
+';
+    document.head.appendChild(style);
+  }
+
+
   chrome.runtime.sendMessage({command: 'getOptions'}, function(response) {
-    // process existing nodes
-    processAudioNodes(document.documentElement);
     // processing options
     options = response;
+    // append custom style if enabled in options
+    if (options.opaqueIcon) {
+      styleOpaqueIcon();
+    }
+    // process existing nodes
+    processAudioNodes(document.documentElement);
     // observing DOM modifications
     var observer = new MutationObserver(function(mutations) {
       mutations.forEach(function(mutation) {
