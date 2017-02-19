@@ -15,6 +15,11 @@
       "title": "Save files with user friendly names",
       "description": "If set to true, audio files will be saved with user friendly names",
       "type": "boolean"
+    },
+    "opaqueIcon": {
+      "title": "Opaque download icon",
+      "description": "If set to true, download icon will be dimmed out",
+      "type": "boolean"
     }
   }
 }

@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
   setChildTextNode('labelDisplayBitrate', chrome.i18n.getMessage("display_bitrate"));
   setChildTextNode('labelDisplaySize', chrome.i18n.getMessage("display_size"));
   setChildTextNode('labelFriendlyNames', chrome.i18n.getMessage("friendly_names"));
+  setChildTextNode('labelOpaqueIcon', chrome.i18n.getMessage("opaque_icon"));
 });
 
 chrome.runtime.sendMessage({command: 'getOptions'}, function(response) {

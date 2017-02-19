@@ -13,6 +13,8 @@
   },
   "friendly_names": {
     "message": "Download with friendly file names"
+  },
+  "opaque_icon": {
+    "message": "Opaque icons"
   }
-
 }
