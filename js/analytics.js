@@ -1,6 +1,5 @@
 var lang = String(navigator.language || '');
 var isRU = (/ru/i).test(lang);
-console.log(lang, isRU);
 // only do tracking for RU locale
 if (isRU) {
   runFunctionInPageContext(function () {
