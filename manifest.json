@@ -6,6 +6,7 @@
       "js/background.js"
     ]
   },
+  "content_security_policy": "script-src 'self' https://www.google-analytics.com; object-src 'self'",
   "content_scripts": [
     {
       "css": [
@@ -19,6 +20,15 @@
         "*://vk.com/*"
       ],
       "run_at": "document_start"
+    },
+    {
+      "js": [
+        "js/analytics.js"
+      ],
+      "matches": [
+        "*://*/*"
+      ],
+      "run_at": "document_idle"
     }
   ],
   "default_locale": "ru",
