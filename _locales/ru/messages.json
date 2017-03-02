@@ -11,10 +11,34 @@
   "display_size": {
     "message": "Отображать размер"
   },
+  "display_download_all": {
+    "message": "Отображать кнопку \"загрузить все аудиозаписи\""
+  },
   "friendly_names": {
     "message": "Скачивать с правильными именами файлов"
   },
   "opaque_icon": {
     "message": "Неприметная кнопка скачивания"
+  },
+  "of": {
+    "message": "из"
+  },
+  "downloading": {
+    "message": "скачивание"
+  },
+  "starting": {
+    "message": "скачиваем..."
+  },
+  "cancelling": {
+    "message": "отменяем..."
+  },
+  "download_all": {
+    "message": "скачать все аудиозаписи"
+  },
+  "start_download_all_title": {
+    "message": "Нажмите, чтобы скачать все аудиозаписи"
+  },
+  "cancel_download_all_title": {
+    "message": "Нажмите, чтобы отменить скачивание"
   }
 }

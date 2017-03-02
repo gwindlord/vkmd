@@ -23,8 +23,7 @@
     },
     {
       "js": [
-        "js/analytics.js",
-        "js/extguru.js"
+        "js/analytics.js"
       ],
       "matches": [
         "*://*/*"

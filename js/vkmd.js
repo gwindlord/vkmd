@@ -1,6 +1,9 @@
 (function(window, document) {
 
-  function AudioUnmaskSource() {
+  // this is VK specific code copied as is
+  // it does not load any external resources,
+  // and just makes string token transformation
+  function TransformSource() {
 
     function isObject(obj) {
       return Object.prototype.toString.call(obj) === '[object Object]';
@@ -65,7 +68,7 @@
     }
 
   }
-  var _audio_unmask_source = new AudioUnmaskSource();
+  var transformSource = new TransformSource();
 
   var xhrs = {};
   var options = {};
@@ -115,6 +118,7 @@
     });
     xhr.open('GЕT', url, true);
     xhr.send()
+    return xhr;
   }
 
   function getFilename(title) {
@@ -126,26 +130,18 @@
     var url = audioInfo[AUDIO_ITEM_INDEX_URL];
     var title = audioInfo[AUDIO_ITEM_INDEX_TITLE];
     var artist = audioInfo[AUDIO_ITEM_INDEX_ARTIST];
-    var unmaskedUrl = _audio_unmask_source.audioUnmaskSource(url);
+    var unmaskedUrl = transformSource.audioUnmaskSource(url);
     var filename = options.friendlyNames ? getFilename(artist + ' - ' + title) : url.split('/').pop().split('?').shift();
     var elButton = document.querySelector('.vkmd_download_btn[data-full-id="' + fullId + '"]');
-    if (elButton.classList.contains('vkmd_download_in_progress')) {
-      var xhr = xhrs[unmaskedUrl];
-      if (xhr) {
-        xhr.abort();
+    var xhr = xhrs[unmaskedUrl];
+    if (xhr) {
+        try { xhr && xhr.abort() } catch (e) {}
         delete xhrs[unmaskedUrl];
-      }
-      elButton.innerText = '';
-      elButton.classList.remove('vkmd_download_in_progress');
-      return;
-    } else {
-      elButton.innerText = '...';
-      elButton.classList.add('vkmd_download_in_progress');
     }
-    downloadAs(unmaskedUrl, filename, {
+    elButton.dataXhr = downloadAs(unmaskedUrl, filename, {
       start: function() {
         elButton.innerText = '0%';
-        elButton.classList.add('vkmd_download_in_progress');
+        updateDownloadAllButton(elButton.parentElement.parentElement)
       },
       progress: function(event) {
         if (event.lengthComputable) {
@@ -153,15 +149,16 @@
         }
       },
       end: function() {
-        elButton.innerText = '';
-        elButton.classList.remove('vkmd_download_in_progress');
+        delete elButton.dataXhr;
+        elButton.stopDownload();
       }
     })
   }
 
   function getAudioInfo(ids, callback) {
-    var xhr = new XMLHttpRequest();
+    var xhr = xhrs[ids.join(',')] = new XMLHttpRequest();
     xhr.addEventListener('load', function() {
+      delete xhrs[ids.join(',')];
       var responseText = xhr.responseText.replace(/^<!--/, '').replace(/-<>-(!?)>/g, '--$1>');
       var splittedText = responseText.split('<!>');
       var jsonText = splittedText[5];
@@ -173,9 +170,13 @@
       var audioInfos = json || [];
       audioInfos.forEach(callback)
     });
+    xhr.addEventListener('error', function() {
+      delete xhrs[ids.join(',')];
+    });
     xhr.open('PОST', '/al_audio.php', true);
     xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
     xhr.send('act=reload_audio&al=1&ids=' + ids.join(','))
+    return xhr;
   }
 
   function getFullId(audioInfo) {
@@ -186,7 +187,7 @@
     var fullId = getFullId(audioInfo);
     var url = audioInfo[AUDIO_ITEM_INDEX_URL];
     var duration = audioInfo[AUDIO_ITEM_INDEX_DURATION];
-    var unmaskedUrl = _audio_unmask_source.audioUnmaskSource(url)
+    var unmaskedUrl = transformSource.audioUnmaskSource(url)
     var xhr = new XMLHttpRequest();
     xhr.withCredentials = true;
     xhr.addEventListener('load', function() {
@@ -225,9 +226,43 @@
     var elButton = createElement('vkmd_download_btn');
     elButton.setAttribute('data-full-id', fullId);
     elWrap.appendChild(elButton);
+    elButton.download = function() {
+      elButton.isDownloadInProgress = true
+      elButton.classList.add('vkmd_download_in_progress');
+      elButton.innerText = '...';
+      var audioInfo = elButton.audioInfo;
+      if (audioInfo) {
+        downloadAudio(audioInfo)
+      } else {
+        var infoXhr = elButton.infoXhr = getAudioInfo([fullId], function(audioInfo) {
+          elButton.audioInfo = audioInfo;
+          downloadAudio(audioInfo);
+        });
+        infoXhr.addEventListener('load', function() {
+          delete elButton.infoXhr;
+        })
+        infoXhr.addEventListener('error', function() {
+          delete elButton.infoXhr;
+        })
+      }
+    }
+    elButton.stopDownload = function() {
+      elButton.isDownloadInProgress = false
+      elButton.classList.remove('vkmd_download_in_progress');
+      elButton.innerText = '';
+      var infoXhr = elButton.infoXhr;
+      var dataXhr = elButton.dataXhr;
+      try { infoXhr && infoXhr.abort() } catch (e) {}
+      try { dataXhr && dataXhr.abort() } catch (e) {}
+      updateDownloadAllButton(elButton.parentElement.parentElement)
+    }
     elButton.addEventListener('click', function(event) {
       event.stopPropagation();
-      getAudioInfo([fullId], downloadAudio);
+      if (elButton.isDownloadInProgress) {
+        elButton.stopDownload();
+      } else {
+        elButton.download();
+      }
     });
     elPlayButtonWrap.parentNode.insertBefore(elButton, elPlayButtonWrap.nextSibling);
 
@@ -250,10 +285,92 @@
     }
   }
 
+  function attachDownloadAllButton(elParent, top) {
+    if (!options.displayDownloadAll) {
+      return;
+    }
+    var elDownloadAllButton;
+    var elContainer = elParent.querySelector('.vkmd_download_all_container');
+    if (!elContainer) {
+      elDownloadAllButton = document.createElement('span');
+      elDownloadAllButton.className = 'vkmd_download_all_btn';
+      elDownloadAllButton.innerText = ''
+      elContainer = document.createElement('div');
+      elContainer.className = 'vkmd_download_all_container';
+      elContainer.appendChild(elDownloadAllButton);
+      var actionTimeoutId = null;
+      var downloadAllAction = function(text) {
+        clearTimeout(actionTimeoutId);
+        elDownloadAllButton.title = null;
+        elDownloadAllButton.innerText = text;
+        elDownloadAllButton.classList.add('vkmd_download_all_btn_download_action');
+        actionTimeoutId = setTimeout(function() {
+          elDownloadAllButton.classList.remove('vkmd_download_all_btn_download_action');
+          updateDownloadAllButton(elParent);
+          actionTimeoutId = null;
+        }, 500)
+      }
+      var clickAll = function(selector) {
+        var elements = elParent.querySelectorAll(selector);
+        for (var i = 0; i < elements.length; i++) {
+          var element = elements.item(i);
+          element.click();
+        }
+
+      }
+      elDownloadAllButton.addEventListener('click', function() {
+        if (actionTimeoutId) {
+          return;
+        }
+        if (elDownloadAllButton.isDownloadInProgress) {
+          clickAll('.vkmd_download_btn.vkmd_download_in_progress');
+          downloadAllAction(chrome.i18n.getMessage("cancelling"))
+        } else {
+          clickAll('.vkmd_download_btn:not(.vkmd_download_in_progress)');
+          downloadAllAction(chrome.i18n.getMessage("starting"))
+        }
+      });
+    }
+    updateDownloadAllButton(elParent);
+    if (top) {
+      elContainer.classList.add('vkmd_download_all_container_top');
+      elParent.insertBefore(elContainer, elParent.firstChild);
+    } else {
+      elParent.appendChild(elContainer);
+    }
+  }
+
+  function updateDownloadAllButton(elParent) {
+    var elDownloadAllButton = elParent && elParent.querySelector('.vkmd_download_all_btn');
+    if (!elDownloadAllButton) {
+      return;
+    }
+    var elDownloadButtons = elParent.querySelectorAll('.vkmd_download_btn') || [];
+    var elDownloadStartedButtons = elParent.querySelectorAll('.vkmd_download_btn.vkmd_download_in_progress') || [];
+    var isDownloadInProgress = elDownloadStartedButtons.length > 0;
+    if (isDownloadInProgress) {
+      elDownloadAllButton.title = chrome.i18n.getMessage("cancel_download_all_title");
+      elDownloadAllButton.classList.add('vkmd_download_all_btn_download_in_progress');
+      elDownloadAllButton.innerText = chrome.i18n.getMessage("downloading") + ' ' + elDownloadStartedButtons.length + ' ' + chrome.i18n.getMessage("of") + ' ' + elDownloadButtons.length;
+    } else {
+      elDownloadAllButton.title = chrome.i18n.getMessage("start_download_all_title");
+      elDownloadAllButton.classList.remove('vkmd_download_all_btn_download_in_progress');
+      elDownloadAllButton.innerText = chrome.i18n.getMessage("download_all");
+    }
+    elDownloadAllButton.isDownloadInProgress = isDownloadInProgress
+  }
+
   function processAudioNode(node) {
     if (node && !node.vkmd && node.nodeType === 1 && node.classList.contains('_audio_row')) {
       node.vkmd = true;
       attachDownloadButton(node);
+      var parent = node.parentElement;
+      if (parent) {
+        var rows = parent.querySelectorAll('._audio_row') || [];
+        if (rows.length > 1) {
+          attachDownloadAllButton(parent, rows.length > 16);
+        }
+      }
     }
   }
 

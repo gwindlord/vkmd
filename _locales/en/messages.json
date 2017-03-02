@@ -11,10 +11,34 @@
   "display_size": {
     "message": "Display file size"
   },
+  "display_download_all": {
+    "message": "Display \"download all\" link"
+  },
   "friendly_names": {
     "message": "Download with friendly file names"
   },
   "opaque_icon": {
     "message": "Opaque icons"
+  },
+  "of": {
+    "message": "of"
+  },
+  "downloading": {
+    "message": "downloading"
+  },
+  "starting": {
+    "message": "starting..."
+  },
+  "cancelling": {
+    "message": "cancelling..."
+  },
+  "download_all": {
+    "message": "download all"
+  },
+  "start_download_all_title": {
+    "message": "Click to download all"
+  },
+  "cancel_download_all_title": {
+    "message": "Click to cancel download"
   }
 }
