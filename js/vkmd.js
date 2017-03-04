@@ -70,7 +70,98 @@
   }
   var transformSource = new TransformSource();
 
-  var xhrs = {};
+  function RequestQueue() {
+    queue = [];
+    inProgress = 0;
+    return {
+      inProgress: function() {
+        return queue.filter(function(item) {
+          var readyState = item.xhr.readyState;
+          return readyState > 0 && readyState < 4;
+        }).length;
+      },
+      enqueue: function(request) {
+        request.addEventListener('loadend', function() {
+          this.updateQueue();
+        }.bind(this));
+        request.addEventListener('error', function() {
+          request.start();
+          this.updateQueue();
+        }.bind(this));
+        queue.push(request);
+        this.updateQueue();
+      },
+      dequeue(request) {
+        queue = queue.filter(function(item) {
+          return item !== request;
+        });
+        this.updateQueue();
+      },
+      updateQueue() {
+        while (this.inProgress() < options.maxConcurrentDownloads) {
+          var waitingRequests = queue.filter(function(item) {
+            return item.xhr.readyState === 0;
+          });
+          var request = waitingRequests.shift();
+          if (request && request.start()) {
+          } else {
+            return;
+          }
+        }
+      }
+    }
+  }
+
+  var requestQueue = new RequestQueue();
+
+  function Request() {
+    requestHeaders = [];
+    return {
+      xhr: new XMLHttpRequest(),
+      retries: 3,
+      setWithCredentials: function(withCredentials) {
+        this.xhr.withCredentials = withCredentials;
+      },
+      setResponseType: function(responseType) {
+        this.xhr.responseType = responseType;
+      },
+      setRequestHeader: function(header, value) {
+        requestHeaders.push({ header: header, value: value });
+      },
+      addEventListener: function(eventName, handler) {
+        this.xhr.addEventListener(eventName, handler);
+      },
+      send: function(method, url, data) {
+        this.method = method
+        this.url = url
+        this.data = data
+        requestQueue.enqueue(this);
+      },
+      start: function() {
+        if (this.retries <= 0) {
+          requestQueue.dequeue(this);
+          return false
+        }
+        this.retries--;
+        this.xhr.open(this.method, this.url, true);
+        requestHeaders.forEach(function(item) {
+          this.xhr.setRequestHeader(item.header, item.value);
+        }.bind(this));
+        this.xhr.send(this.data);
+        return true;
+      },
+      abort() {
+        this.retries = 0;
+        try {
+          this.xhr.abort();
+        } catch (e) {
+        }
+      }
+    }
+  }
+
+
+
   var options = {};
   var prefetchIds = [];
   var prefetchTimeoutId = null;
@@ -104,21 +195,21 @@
   }
 
   function downloadAs(url, filename, handlers) {
-    var xhr = xhrs[url] =  new XMLHttpRequest();
-    xhr.responseType = 'blob';
-    xhr.addEventListener('loadstart', handlers.start);
-    xhr.addEventListener('loadend', handlers.end);
-    xhr.addEventListener('progress', handlers.progress);
-    xhr.addEventListener('load', function() {
-      delete xhrs[url];
+    var request = new Request();
+    request.setResponseType('blob');
+    request.addEventListener('loadstart', handlers.start);
+    request.addEventListener('progress', handlers.progress);
+    request.addEventListener('load', function() {
       saveAs(new window.Blob([this.response], {type: 'octet/stream'}), filename);
+      handlers.end();
     });
-    xhr.addEventListener('error', function() {
-      delete xhrs[url];
+    request.addEventListener('error', function() {
+      if (!request.start()) {
+        handlers.end();
+      }
     });
-    xhr.open('GЕT', url, true);
-    xhr.send()
-    return xhr;
+    request.send('GЕT', url);
+    return request;
   }
 
   function getFilename(title) {
@@ -133,12 +224,7 @@
     var unmaskedUrl = transformSource.audioUnmaskSource(url);
     var filename = options.friendlyNames ? getFilename(artist + ' - ' + title) : url.split('/').pop().split('?').shift();
     var elButton = document.querySelector('.vkmd_download_btn[data-full-id="' + fullId + '"]');
-    var xhr = xhrs[unmaskedUrl];
-    if (xhr) {
-        try { xhr && xhr.abort() } catch (e) {}
-        delete xhrs[unmaskedUrl];
-    }
-    elButton.dataXhr = downloadAs(unmaskedUrl, filename, {
+    elButton.infoRequest = downloadAs(unmaskedUrl, filename, {
       start: function() {
         elButton.innerText = '0%';
         updateDownloadAllButton(elButton.parentElement.parentElement)
@@ -149,34 +235,33 @@
         }
       },
       end: function() {
-        delete elButton.dataXhr;
         elButton.stopDownload();
       }
     })
   }
 
   function getAudioInfo(ids, callback) {
-    var xhr = xhrs[ids.join(',')] = new XMLHttpRequest();
-    xhr.addEventListener('load', function() {
-      delete xhrs[ids.join(',')];
-      var responseText = xhr.responseText.replace(/^<!--/, '').replace(/-<>-(!?)>/g, '--$1>');
-      var splittedText = responseText.split('<!>');
-      var jsonText = splittedText[5];
-      var prefix = jsonText.substr(0, 7);
-      if (prefix !== '<!json>') {
-        return;
+    var request = new Request();
+    request.addEventListener('load', function() {
+      try {
+        var responseText = this.responseText.replace(/^<!--/, '').replace(/-<>-(!?)>/g, '--$1>');
+        var splittedText = responseText.split('<!>');
+        var jsonText = splittedText[5];
+        var prefix = jsonText.substr(0, 7);
+        if (prefix !== '<!json>') {
+          return;
+        }
+        var json = JSON.parse(jsonText.substr(7));
+        var audioInfos = json || [];
+        audioInfos.forEach(callback);
+      } catch(e) {
+        callback(null);
       }
-      var json = JSON.parse(jsonText.substr(7));
-      var audioInfos = json || [];
-      audioInfos.forEach(callback)
     });
-    xhr.addEventListener('error', function() {
-      delete xhrs[ids.join(',')];
-    });
-    xhr.open('PОST', '/al_audio.php', true);
-    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-    xhr.send('act=reload_audio&al=1&ids=' + ids.join(','))
-    return xhr;
+    request.setWithCredentials(true);
+    request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    request.send('PОST', '/al_audio.php', 'act=reload_audio&al=1&ids=' + ids.join(','))
+    return request;
   }
 
   function getFullId(audioInfo) {
@@ -184,18 +269,25 @@
   }
 
   function fetchStats(audioInfo) {
+    if (!audioInfo) {
+      return;
+    }
     var fullId = getFullId(audioInfo);
     var url = audioInfo[AUDIO_ITEM_INDEX_URL];
     var duration = audioInfo[AUDIO_ITEM_INDEX_DURATION];
     var unmaskedUrl = transformSource.audioUnmaskSource(url)
-    var xhr = new XMLHttpRequest();
-    xhr.withCredentials = true;
-    xhr.addEventListener('load', function() {
+    var request = new Request();
+    request.setWithCredentials(true);
+    request.addEventListener('load', function() {
       var contentLength = this.getResponseHeader('Content-Length');
       updateStats(fullId, duration, contentLength)
     });
-    xhr.open('HЕAD', unmaskedUrl, true);
-    xhr.send();
+    request.send('HЕAD', unmaskedUrl);
+    // store
+    var elButton = document.querySelector('.vkmd_download_btn[data-full-id="' + fullId + '"]');
+    if (elButton) {
+      elButton.audioInfo = audioInfo;
+    }
   }
 
   function prefetch() {
@@ -234,26 +326,22 @@
       if (audioInfo) {
         downloadAudio(audioInfo)
       } else {
-        var infoXhr = elButton.infoXhr = getAudioInfo([fullId], function(audioInfo) {
+        elButton.infoRequest = getAudioInfo([fullId], function(audioInfo) {
           elButton.audioInfo = audioInfo;
-          downloadAudio(audioInfo);
+          if (audioInfo) {
+            downloadAudio(audioInfo);
+          } else {
+            elButton.stopDownload();
+          }
         });
-        infoXhr.addEventListener('load', function() {
-          delete elButton.infoXhr;
-        })
-        infoXhr.addEventListener('error', function() {
-          delete elButton.infoXhr;
-        })
       }
     }
     elButton.stopDownload = function() {
       elButton.isDownloadInProgress = false
       elButton.classList.remove('vkmd_download_in_progress');
       elButton.innerText = '';
-      var infoXhr = elButton.infoXhr;
-      var dataXhr = elButton.dataXhr;
-      try { infoXhr && infoXhr.abort() } catch (e) {}
-      try { dataXhr && dataXhr.abort() } catch (e) {}
+      elButton.infoRequest && elButton.infoRequest.abort();
+      elButton.infoRequest && elButton.infoRequest.abort();
       updateDownloadAllButton(elButton.parentElement.parentElement)
     }
     elButton.addEventListener('click', function(event) {
@@ -280,7 +368,7 @@
         prefetch();
       }
       if (prefetchIds.length > 0) {
-        prefetchTimeoutId = setTimeout(prefetch, 1000);
+        prefetchTimeoutId = setTimeout(prefetch, 0);
       }
     }
   }

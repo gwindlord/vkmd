@@ -20,6 +20,11 @@
       "title": "Opaque download icon",
       "description": "If set to true, download icon will be dimmed out",
       "type": "boolean"
+    },
+    "maxConcurrentDownloads": {
+      "title": "Maximum concurrent downloads",
+      "description": "Limit of concurrent downloads",
+      "type": "number"
     }
   }
 }

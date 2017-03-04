@@ -10,7 +10,8 @@ chrome.runtime.onMessage.addListener(
           displaySize: true,
           displayDownloadAll: true,
           friendlyNames: true,
-          opaqueIcon: false
+          opaqueIcon: false,
+          maxConcurrentDownloads: 8,
         }, sendResponse);
         break;
     }

@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
   setChildTextNode('labelDownloadAll', chrome.i18n.getMessage("display_download_all"));
   setChildTextNode('labelFriendlyNames', chrome.i18n.getMessage("friendly_names"));
   setChildTextNode('labelOpaqueIcon', chrome.i18n.getMessage("opaque_icon"));
+  setChildTextNode('labelMaxConcurrentDownloads', chrome.i18n.getMessage("max_concurrent_downloads"));
 });
 
 chrome.runtime.sendMessage({command: 'getOptions'}, function(response) {
