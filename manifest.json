@@ -60,5 +60,5 @@
   "storage": {
     "managed_schema": "storage.json"
   },
-  "version": "4.0.0"
+  "version": "4.0.1"
 }
