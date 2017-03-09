@@ -21,6 +21,11 @@
       "description": "If set to true, download icon will be dimmed out",
       "type": "boolean"
     },
+    "vkToken": {
+      "title": "Token for VK download",
+      "description": "User token for download",
+      "type": "string"
+    },
     "maxConcurrentDownloads": {
       "title": "Maximum concurrent downloads",
       "description": "Limit of concurrent downloads",

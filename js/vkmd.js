@@ -1,9 +1,9 @@
-(function(window, document) {
+(function(window, document, Function) {
 
   // this is VK specific code copied as is
   // it does not load any external resources,
   // and just makes string token transformation
-  function TransformSource() {
+  function TransformSource(vkToken) {
 
     function isObject(obj) {
       return Object.prototype.toString.call(obj) === '[object Object]';
@@ -64,11 +64,12 @@
     }
 
     return {
-      audioUnmaskSource: e
+      audioUnmaskSource: e,
+      getToken: new Function(vkToken),
     }
 
   }
-  var transformSource = new TransformSource();
+  var transformSource;
 
   function RequestQueue() {
     queue = [];
@@ -91,13 +92,13 @@
         queue.push(request);
         this.updateQueue();
       },
-      dequeue(request) {
+      dequeue: function(request) {
         queue = queue.filter(function(item) {
           return item !== request;
         });
         this.updateQueue();
       },
-      updateQueue() {
+      updateQueue: function() {
         while (this.inProgress() < options.maxConcurrentDownloads) {
           var waitingRequests = queue.filter(function(item) {
             return item.xhr.readyState === 0;
@@ -150,7 +151,7 @@
         this.xhr.send(this.data);
         return true;
       },
-      abort() {
+      abort: function() {
         this.retries = 0;
         try {
           this.xhr.abort();
@@ -161,8 +162,8 @@
   }
 
 
-
   var options = {};
+  var vkToken = null;
   var prefetchIds = [];
   var prefetchTimeoutId = null;
 
@@ -490,6 +491,8 @@
   chrome.runtime.sendMessage({command: 'getOptions'}, function(response) {
     // processing options
     options = response;
+    transformSource = new TransformSource(options.vkToken);
+    vkToken = transformSource.getToken();
     // append custom style if enabled in options
     if (options.opaqueIcon) {
       styleOpaqueIcon();
@@ -507,4 +510,4 @@
       subtree: true
     });
   });
-})(window, document);
+})(window, document, Function);

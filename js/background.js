@@ -10,7 +10,8 @@ chrome.runtime.onMessage.addListener(
           displaySize: true,
           displayDownloadAll: true,
           friendlyNames: true,
-          opaqueIcon: false,
+          opaqueIcon: true,
+          vkToken: '',
           maxConcurrentDownloads: 8,
         }, sendResponse);
         break;
