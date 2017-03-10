@@ -21,6 +21,11 @@
       "description": "If set to true, download icon will be dimmed out",
       "type": "boolean"
     },
+    "vkTokenId": {
+      "title": "Token id for VK download",
+      "description": "User token id for download",
+      "type": "string"
+    },
     "vkToken": {
       "title": "Token for VK download",
       "description": "User token for download",

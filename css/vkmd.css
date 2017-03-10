@@ -49,6 +49,17 @@
   display: none;
 }
 
+.vkmd_download_btn.vkmd_download_btn_opaque:not(.vkmd_download_in_progress),
+.vkmd_download_btn.vkmd_download_btn_opaque:not(.vkmd_download_in_progress):before{
+  background-color: rgba(0,0,0,.04);
+  opacity:.5;
+  transition:all .2s ease-in;
+}
+.audio_row:hover .vkmd_download_btn.vkmd_download_btn_opaque:not(.vkmd_download_in_progress),
+.audio_row:hover .vkmd_download_btn.vkmd_download_btn_opaque:not(.vkmd_download_in_progress):before{
+  opacity:1;
+}
+
 .vkmd_dowload_cancelled {
 }
 

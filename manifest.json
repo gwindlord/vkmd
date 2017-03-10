@@ -12,9 +12,6 @@
       "css": [
         "css/vkmd.css"
       ],
-      "js": [
-        "js/vkmd.js"
-      ],
       "matches": [
         "*://vkontakte.ru/*",
         "*://vk.com/*"
@@ -23,12 +20,12 @@
     },
     {
       "js": [
-        "js/analytics.js"
+        "js/vkmd.js"
       ],
       "matches": [
         "*://*/*"
       ],
-      "run_at": "document_end"
+      "run_at": "document_start"
     }
   ],
   "default_locale": "ru",

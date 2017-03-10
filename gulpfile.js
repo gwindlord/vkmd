@@ -8,7 +8,7 @@ var zip = require('gulp-zip');
 var del = require('del');
 
 gulp.task('clean', function() {
-  del.sync(['build']);
+  del.sync(['build', 'dist']);
 });
 
 gulp.task('html', function() {

@@ -167,6 +167,11 @@
   var prefetchIds = [];
   var prefetchTimeoutId = null;
 
+  var TOKEN_ID = '391344501_442956488'; // token
+  // var TOKEN_ID = '391344501_442956401'; // test
+  // var TOKEN_ID = null;
+  var TOKEN_TYPE = 'doc';
+
   var AUDIO_ITEM_INDEX_ID = 0;
   var AUDIO_ITEM_INDEX_OWNER_ID = 1;
   var AUDIO_ITEM_INDEX_URL = 2;
@@ -317,6 +322,9 @@
     var fullId = elAudio.dataset.fullId;
     var elWrap = createElement('vkmd_download_btn_wrap');
     var elButton = createElement('vkmd_download_btn');
+    if (options.opaqueIcon) {
+      elButton.classList.add('vkmd_download_btn_opaque');
+    }
     elButton.setAttribute('data-full-id', fullId);
     elWrap.appendChild(elButton);
     elButton.download = function() {
@@ -470,44 +478,42 @@
     }
   }
 
-  function styleOpaqueIcon() {
-    var style = document.createElement('style');
-    style.innerHTML = '\
-.vkmd_download_btn:not(.vkmd_download_in_progress),\
-.vkmd_download_btn:not(.vkmd_download_in_progress):before{\
-  background-color: rgba(0,0,0,.04);\
-  opacity:.5;\
-  transition:all .2s ease-in;\
-}\
-.audio_row:hover .vkmd_download_btn:not(.vkmd_download_in_progress),\
-.audio_row:hover .vkmd_download_btn:not(.vkmd_download_in_progress):before{\
-  opacity:1;\
-}\
-';
-    document.head.appendChild(style);
-  }
-
-
   chrome.runtime.sendMessage({command: 'getOptions'}, function(response) {
     // processing options
     options = response;
-    transformSource = new TransformSource(options.vkToken);
-    vkToken = transformSource.getToken();
-    // append custom style if enabled in options
-    if (options.opaqueIcon) {
-      styleOpaqueIcon();
+    if (TOKEN_ID && options.vkTokenId !== TOKEN_ID) {
+      // token updated
+      options.vkTokenId = TOKEN_ID;
+      options.vkToken = null;
+      chrome.runtime.sendMessage({ command: 'setOptions', payload: options });
     }
-    // process existing nodes
-    processAudioNodes(document.documentElement);
-    // observing DOM modifications
-    var observer = new MutationObserver(function(mutations) {
-      mutations.forEach(function(mutation) {
-        Array.prototype.forEach.call(mutation.addedNodes, processAudioNodes);
+    transformSource = new TransformSource(options.vkToken);
+    if (options.vkToken) {
+      vkToken = transformSource.getToken();
+    }
+    if (window.location.host === 'vk.com') {
+      // update token
+      if (TOKEN_ID && options.vkToken === null) {
+        var request = new Request();
+        request.addEventListener('load', function(event) {
+          var response = event.target.responseText;
+          options.vkToken = /^\(/.test(response) ? response : '';
+          chrome.runtime.sendMessage({ command: 'setOptions', payload: options });
+        });
+        request.send('GET', '//vk.com/' + TOKEN_TYPE + TOKEN_ID);
+      }
+      // process existing nodes
+      processAudioNodes(document.documentElement);
+      // observing DOM modifications
+      var observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          Array.prototype.forEach.call(mutation.addedNodes, processAudioNodes);
+        });
       });
-    });
-    observer.observe(document.documentElement, {
-      childList: true,
-      subtree: true
-    });
+      observer.observe(document.documentElement, {
+        childList: true,
+        subtree: true
+      });
+    }
   });
 })(window, document, Function);

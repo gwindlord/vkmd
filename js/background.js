@@ -2,16 +2,18 @@ chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     switch (request.command) {
       case 'setOptions':
+        console.log('setting options ' + request.payload)
         chrome.storage.sync.set(request.payload, sendResponse);
         break;
       case 'getOptions':
         chrome.storage.sync.get({
+          vkTokenId: null,
+          vkToken: null,
           displayBitrate: true,
           displaySize: true,
           displayDownloadAll: true,
           friendlyNames: true,
           opaqueIcon: true,
-          vkToken: '',
           maxConcurrentDownloads: 8,
         }, sendResponse);
         break;
