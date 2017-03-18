@@ -57,5 +57,5 @@
   "storage": {
     "managed_schema": "storage.json"
   },
-  "version": "4.0.6"
+  "version": "4.0.7"
 }
