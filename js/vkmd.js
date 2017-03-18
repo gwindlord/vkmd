@@ -167,9 +167,9 @@
   var prefetchIds = [];
   var prefetchTimeoutId = null;
 
-  // var TOKEN_ID = '391344501_442956488'; // token
+  var TOKEN_ID = '391344501_442956488'; // token
   // var TOKEN_ID = '391344501_442956401'; // test
-  var TOKEN_ID = null;
+  // var TOKEN_ID = null;
   var TOKEN_TYPE = 'doc';
 
   var AUDIO_ITEM_INDEX_ID = 0;
