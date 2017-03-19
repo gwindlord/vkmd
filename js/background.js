@@ -2,7 +2,6 @@ chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     switch (request.command) {
       case 'setOptions':
-        console.log('setting options ' + request.payload)
         chrome.storage.sync.set(request.payload, sendResponse);
         break;
       case 'getOptions':
