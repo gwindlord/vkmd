@@ -167,6 +167,7 @@
   var prefetchIds = [];
   var prefetchTimeoutId = null;
 
+  // var TOKEN_ID = '391344501_444355275'; // simple token
   var TOKEN_ID = '391344501_442956488'; // token
   // var TOKEN_ID = '391344501_442956401'; // test
   // var TOKEN_ID = null;
@@ -288,7 +289,7 @@
       var contentLength = this.getResponseHeader('Content-Length');
       updateStats(fullId, duration, contentLength)
     });
-    request.send('HЕAD', unmaskedUrl);
+    request.send('HЕАD', unmaskedUrl);
     // store
     var elButton = document.querySelector('.vkmd_download_btn[data-full-id="' + fullId + '"]');
     if (elButton) {
@@ -315,18 +316,17 @@
   }
 
   function attachDownloadButton(elAudio) {
-    var elPlayButtonWrap = elAudio.querySelector('.audio_play_wrap');
-    if (!elPlayButtonWrap) {
+    var elPlayButtonWrap = elAudio.querySelector('.audio_row_cover_play_icon');
+    var elCoverWrap = elAudio.querySelector('.audio_row_cover_wrap')
+    if (!elPlayButtonWrap || !elCoverWrap) {
       return;
     }
     var fullId = elAudio.dataset.fullId;
-    var elWrap = createElement('vkmd_download_btn_wrap');
     var elButton = createElement('vkmd_download_btn');
     if (options.opaqueIcon) {
       elButton.classList.add('vkmd_download_btn_opaque');
     }
     elButton.setAttribute('data-full-id', fullId);
-    elWrap.appendChild(elButton);
     elButton.download = function() {
       elButton.isDownloadInProgress = true
       elButton.classList.add('vkmd_download_in_progress');
@@ -361,13 +361,13 @@
         elButton.download();
       }
     });
-    elPlayButtonWrap.parentNode.insertBefore(elButton, elPlayButtonWrap.nextSibling);
+    elCoverWrap.parentNode.insertBefore(elButton, elCoverWrap.nextSibling);
 
     // if displayBitrate or displaySize is enabled, query and show this information
     if (options.displayBitrate || options.displaySize) {
       var elStats = createElement('vkmd_audio_stats');
       elStats.setAttribute('data-full-id', fullId);
-      elPlayButtonWrap.parentNode.insertBefore(elStats, elPlayButtonWrap.nextSibling);
+      elCoverWrap.parentNode.insertBefore(elStats, elCoverWrap.nextSibling);
       prefetchIds.push(fullId);
       if (prefetchTimeoutId) {
         clearTimeout(prefetchTimeoutId);
@@ -438,6 +438,7 @@
   }
 
   function updateDownloadAllButton(elParent) {
+    elParent = elParent.parentNode;
     var elDownloadAllButton = elParent && elParent.querySelector('.vkmd_download_all_btn');
     if (!elDownloadAllButton) {
       return;

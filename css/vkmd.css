@@ -10,39 +10,43 @@
   line-height: 1.2;
   white-space: nowrap;
   overflow: visible;
+  margin-top: 6px;
 }
 
 .vkmd_download_btn {
   position: relative;
   float: left;
   display: block;
-  width: 24px;
-  height: 24px;
+  width: 34px;
+  height: 34px;
+  line-height: 34px;
   margin-left: 1px;
-  border-radius: 50%;
+  border-radius: 2px;
   outline: none;
   border: none;
   cursor: pointer;
-  font-size: 7px;
-  line-height: 24px;
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: -0.5px;
   text-align: center;
-  color: #ffffff;
-  background: #577ca1;
+  color: #6f98c7;
+  background: #e6edf5;
   user-select: none;
 }
 
 .vkmd_download_btn:before {
-  content: '';
+  content: '⬇';
   display: block;
   position: absolute;
   top: 0;
   left: 0;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: #577ca1 url(/images/icons/audio_playpause_2x.png) no-repeat 8px 7px;
-  background-size: 9px 32px;
-  transform: rotate(90deg);
+  width: 34px;
+  height: 34px;
+  line-height: 34px;
+  border-radius: 2px;
+  background: #e6edf5;
+  color: #6f98c7;
+  font-size: 16px;
 }
 
 .vkmd_download_btn.vkmd_download_in_progress:before {
