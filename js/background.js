@@ -12,7 +12,7 @@ chrome.runtime.onMessage.addListener(
           displaySize: true,
           displayDownloadAll: true,
           friendlyNames: true,
-          opaqueIcon: true,
+          autoHideDownloadButton: true,
           maxConcurrentDownloads: 8,
         }, sendResponse);
         break;

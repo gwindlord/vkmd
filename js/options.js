@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
   setChildTextNode('labelDisplaySize', chrome.i18n.getMessage("display_size"));
   setChildTextNode('labelDownloadAll', chrome.i18n.getMessage("display_download_all"));
   setChildTextNode('labelFriendlyNames', chrome.i18n.getMessage("friendly_names"));
-  setChildTextNode('labelOpaqueIcon', chrome.i18n.getMessage("opaque_icon"));
+  setChildTextNode('labelAutoHideDownloadButton', chrome.i18n.getMessage("auto_hide_download_button"));
   setChildTextNode('labelMaxConcurrentDownloads', chrome.i18n.getMessage("max_concurrent_downloads"));
 });
 

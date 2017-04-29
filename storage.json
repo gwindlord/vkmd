@@ -16,9 +16,9 @@
       "description": "If set to true, audio files will be saved with user friendly names",
       "type": "boolean"
     },
-    "opaqueIcon": {
-      "title": "Opaque download icon",
-      "description": "If set to true, download icon will be dimmed out",
+    "autoHideDownloadButton": {
+      "title": "Auto hide download button",
+      "description": "If set to true, download button will be hidden automatically",
       "type": "boolean"
     },
     "vkTokenId": {

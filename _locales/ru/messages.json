@@ -17,8 +17,8 @@
   "friendly_names": {
     "message": "Скачивать с правильными именами файлов"
   },
-  "opaque_icon": {
-    "message": "Неприметная кнопка скачивания"
+  "auto_hide_download_button": {
+    "message": "Автоматически скрывать кнопку загрузки"
   },
   "of": {
     "message": "из"

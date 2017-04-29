@@ -17,8 +17,8 @@
   "friendly_names": {
     "message": "Download with friendly file names"
   },
-  "opaque_icon": {
-    "message": "Opaque icons"
+  "auto_hide_download_button": {
+    "message": "Auto hide download button"
   },
   "of": {
     "message": "of"

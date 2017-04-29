@@ -20,7 +20,7 @@
   width: 34px;
   height: 34px;
   line-height: 34px;
-  margin-left: 1px;
+  margin-left: -39px;
   border-radius: 2px;
   outline: none;
   border: none;
@@ -32,6 +32,13 @@
   color: #6f98c7;
   background: #e6edf5;
   user-select: none;
+  transition: margin-left 150ms ease-out;
+}
+
+._audio_row:hover .vkmd_download_btn,
+.vkmd_download_btn.vkmd_download_in_progress,
+.vkmd_download_btn.vkmd_download_btn_visible {
+  margin-left: 0 !important;
 }
 
 .vkmd_download_btn:before {

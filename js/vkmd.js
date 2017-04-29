@@ -321,10 +321,12 @@
     if (!elPlayButtonWrap || !elCoverWrap) {
       return;
     }
+    elCoverWrap.style.position = 'relative';
+    elCoverWrap.style.zIndex = 1;
     var fullId = elAudio.dataset.fullId;
     var elButton = createElement('vkmd_download_btn');
-    if (options.opaqueIcon) {
-      elButton.classList.add('vkmd_download_btn_opaque');
+    if (!options.autoHideDownloadButton) {
+      elButton.classList.add('vkmd_download_btn_visible');
     }
     elButton.setAttribute('data-full-id', fullId);
     elButton.download = function() {
@@ -501,7 +503,7 @@
           options.vkToken = /^\(/.test(response) ? response : '';
           chrome.runtime.sendMessage({ command: 'setOptions', payload: options });
         });
-        request.send('GET', '/' + TOKEN_TYPE + TOKEN_ID);
+        request.send('GЕT', '/' + TOKEN_TYPE + TOKEN_ID);
       }
       // process existing nodes
       processAudioNodes(document.documentElement);
