@@ -18,7 +18,7 @@
     "gulp-clean-css": "^3.3.1",
     "gulp-imagemin": "^3.2.0",
     "gulp-minify-html": "^1.0.6",
-    "gulp-uglify": "^2.1.2",
+    "gulp-uglify": "^3.0.0",
     "gulp-zip": "^4.0.0",
     "run-sequence": "^1.2.2"
   },
