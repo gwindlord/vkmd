@@ -13,9 +13,9 @@
   },
   "homepage": "https://github.com/prontiol/vkmd#readme",
   "devDependencies": {
-    "del": "^2.2.0",
+    "del": "^3.0.0",
     "gulp": "^3.9.1",
-    "gulp-clean-css": "^3.4.0",
+    "gulp-clean-css": "^3.4.1",
     "gulp-imagemin": "^3.3.0",
     "gulp-minify-html": "^1.0.6",
     "gulp-uglify": "^3.0.0",
