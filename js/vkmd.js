@@ -316,13 +316,11 @@
   }
 
   function attachDownloadButton(elAudio) {
-    var elPlayButtonWrap = elAudio.querySelector('.audio_row_cover_play_icon');
-    var elCoverWrap = elAudio.querySelector('.audio_row_cover_wrap')
-    if (!elPlayButtonWrap || !elCoverWrap) {
+    var elCover = elAudio.querySelector('.audio_row__cover')
+    var elCoverBack = elAudio.querySelector('.audio_row__cover_back')
+    if (!elCover || !elCoverBack) {
       return;
     }
-    elCoverWrap.style.position = 'relative';
-    elCoverWrap.style.zIndex = 1;
     var fullId = elAudio.dataset.fullId;
     var elButton = createElement('vkmd_download_btn');
     if (!options.autoHideDownloadButton) {
@@ -363,13 +361,13 @@
         elButton.download();
       }
     });
-    elCoverWrap.parentNode.insertBefore(elButton, elCoverWrap.nextSibling);
+    elCoverBack.parentNode.insertBefore(elButton, elCoverBack.nextSibling);
 
     // if displayBitrate or displaySize is enabled, query and show this information
     if (options.displayBitrate || options.displaySize) {
       var elStats = createElement('vkmd_audio_stats');
       elStats.setAttribute('data-full-id', fullId);
-      elCoverWrap.parentNode.insertBefore(elStats, elCoverWrap.nextSibling);
+      elCoverBack.parentNode.insertBefore(elStats, elCoverBack.nextSibling);
       prefetchIds.push(fullId);
       if (prefetchTimeoutId) {
         clearTimeout(prefetchTimeoutId);
