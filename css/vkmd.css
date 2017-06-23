@@ -4,7 +4,7 @@
   float: right;
   margin-left: 4px;
   width: 32px;
-  height: 48px;
+  height: 40px;
   color: #c4d1de;
   font-size: 8px;
   line-height: 1.2;
@@ -17,35 +17,30 @@
   z-index: 0 !important;
   float: left;
   display: block;
-  top: 4px;
+  top: 7px;
   left: 9px;
-  width: 40px;
-  height: 40px;
-  line-height: 40px;
+  width: 25px;
+  height: 25px;
+  line-height: 25px;
   margin-left: -5px;
   margin-right: 14px;
-  border-radius: 2px;
+  border-radius: 17px;
   outline: none;
   border: none;
   cursor: pointer;
-  font-size: 10px;
+  font-size: 7px;
   font-weight: bold;
   letter-spacing: -0.5px;
   text-align: center;
   color: #6f98c7;
   background: #e6edf5;
   user-select: none;
-  transition: margin-left 150ms ease-out;
+  opacity: 0;
+  transition: all 150ms ease-out;
 }
 
 .audio_row_content > div {
   z-index: 1;
-}
-
-._audio_row:hover .vkmd_download_btn,
-.vkmd_download_btn.vkmd_download_in_progress,
-.vkmd_download_btn.vkmd_download_btn_visible {
-  margin-left: 40px !important;
 }
 
 .vkmd_download_btn:before {
@@ -54,27 +49,75 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 40px;
-  height: 40px;
-  line-height: 40px;
-  border-radius: 2px;
+  width: 25px;
+  height: 25px;
+  line-height: 25px;
+  border-radius: 50%;
   background: #e6edf5;
   color: #6f98c7;
   font-size: 16px;
 }
 
-.vkmd_download_btn.vkmd_download_in_progress:before {
+.audio_row:hover .vkmd_download_btn,
+.audio_row.vkmd_download_in_progress .vkmd_download_btn,
+.audio_row.vkmd_download_btn_visible .vkmd_download_btn {
+  margin-left: 28px !important;
+  opacity: 1 !important;
+}
+
+.audio_row.vkmd_download_in_progress .vkmd_download_btn,
+.audio_row.vkmd_download_btn_visible .vkmd_download_btn {
+  margin-left: 28px !important;
+  opacity: 1 !important;
+}
+
+.audio_row .audio_player__place {
+  top: 32px !important;
+}
+
+.audio_row.vkmd_with_stats .audio_player__place .audio_inline_player {
+  margin-right: 32px;
+}
+
+.audio_w_covers .vkmd_audio_stats {
+  height: 48px;
+}
+
+.audio_w_covers .vkmd_download_btn {
+  top: 4px;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  border-radius: 2px;
+  font-size: 9px;
+}
+
+.audio_w_covers .vkmd_download_btn:before {
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  border-radius: 2px;
+  font-size: 16px;
+}
+
+.audio_w_covers .audio_row:hover .vkmd_download_btn,
+.audio_w_covers .audio_row.vkmd_download_in_progress .vkmd_download_btn,
+.audio_w_covers .audio_row.vkmd_download_btn_visible .vkmd_download_btn {
+  margin-left: 40px !important;
+}
+
+.vkmd_download_in_progress .vkmd_download_btn:before {
   display: none;
 }
 
-.vkmd_download_btn.vkmd_download_btn_opaque:not(.vkmd_download_in_progress),
-.vkmd_download_btn.vkmd_download_btn_opaque:not(.vkmd_download_in_progress):before{
+.audio_row:not(.vkmd_download_in_progress) .vkmd_download_btn.vkmd_download_btn_opaque,
+.audio_row:not(.vkmd_download_in_progress) .vkmd_download_btn.vkmd_download_btn_opaque:before{
   background-color: rgba(0,0,0,.04);
   opacity:.5;
   transition:all .2s ease-in;
 }
-.audio_row:hover .vkmd_download_btn.vkmd_download_btn_opaque:not(.vkmd_download_in_progress),
-.audio_row:hover .vkmd_download_btn.vkmd_download_btn_opaque:not(.vkmd_download_in_progress):before{
+.audio_row:not(.vkmd_download_in_progress):hover .vkmd_download_btn.vkmd_download_btn_opaque,
+.audio_row:not(.vkmd_download_in_progress):hover .vkmd_download_btn.vkmd_download_btn_opaque:before{
   opacity:1;
 }
 
@@ -114,15 +157,6 @@
 
 .vkmd_download_all_btn:hover {
   opacity: 1;
-}
-
-.audio_inline_player .audio_inline_player_left {
-  padding: 0 0 0 30px !important;
-}
-
-.audio_inline_player .audio_inline_player_right {
-  width: 60px !important;
-  margin-left: 5px !important;
 }
 
 .audio_inline_player {

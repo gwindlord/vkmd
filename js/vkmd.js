@@ -267,7 +267,7 @@
     });
     request.setWithCredentials(true);
     request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-    request.send('PОST', '/al_audio.php', 'act=reload_audio&al=1&ids=' + ids.join(','))
+    request.send('POST', '/al_audio.php', 'act=reload_audio&al=1&ids=' + ids.join(','))
     return request;
   }
 
@@ -323,13 +323,10 @@
     }
     var fullId = elAudio.dataset.fullId;
     var elButton = createElement('vkmd_download_btn');
-    if (!options.autoHideDownloadButton) {
-      elButton.classList.add('vkmd_download_btn_visible');
-    }
     elButton.setAttribute('data-full-id', fullId);
     elButton.download = function() {
+      elButton.parentNode.parentNode.classList.add('vkmd_download_in_progress');
       elButton.isDownloadInProgress = true
-      elButton.classList.add('vkmd_download_in_progress');
       elButton.innerText = '...';
       var audioInfo = elButton.audioInfo;
       if (audioInfo) {
@@ -347,7 +344,7 @@
     }
     elButton.stopDownload = function() {
       elButton.isDownloadInProgress = false
-      elButton.classList.remove('vkmd_download_in_progress');
+      elButton.parentNode.parentNode.classList.remove('vkmd_download_in_progress');
       elButton.innerText = '';
       elButton.infoRequest && elButton.infoRequest.abort();
       elButton.infoRequest && elButton.infoRequest.abort();
@@ -362,11 +359,14 @@
       }
     });
     elCoverBack.parentNode.insertBefore(elButton, elCoverBack.nextSibling);
-
+    if (!options.autoHideDownloadButton) {
+      elButton.parentNode.parentNode.classList.add('vkmd_download_btn_visible');
+    }
     // if displayBitrate or displaySize is enabled, query and show this information
     if (options.displayBitrate || options.displaySize) {
       var elStats = createElement('vkmd_audio_stats');
       elStats.setAttribute('data-full-id', fullId);
+      elCoverBack.parentNode.parentNode.classList.add('vkmd_with_stats');
       elCoverBack.parentNode.insertBefore(elStats, elCoverBack.nextSibling);
       prefetchIds.push(fullId);
       if (prefetchTimeoutId) {
@@ -420,10 +420,10 @@
           return;
         }
         if (elDownloadAllButton.isDownloadInProgress) {
-          clickAll('.vkmd_download_btn.vkmd_download_in_progress');
+          clickAll('.audio_row.vkmd_download_in_progress .vkmd_download_btn');
           downloadAllAction(chrome.i18n.getMessage("cancelling"))
         } else {
-          clickAll('.vkmd_download_btn:not(.vkmd_download_in_progress)');
+          clickAll('.audio_row:not(.vkmd_download_in_progress) .vkmd_download_btn');
           downloadAllAction(chrome.i18n.getMessage("starting"))
         }
       });
@@ -444,7 +444,7 @@
       return;
     }
     var elDownloadButtons = elParent.querySelectorAll('.vkmd_download_btn') || [];
-    var elDownloadStartedButtons = elParent.querySelectorAll('.vkmd_download_btn.vkmd_download_in_progress') || [];
+    var elDownloadStartedButtons = elParent.querySelectorAll('.audio_row.vkmd_download_in_progress .vkmd_download_btn') || [];
     var isDownloadInProgress = elDownloadStartedButtons.length > 0;
     if (isDownloadInProgress) {
       elDownloadAllButton.title = chrome.i18n.getMessage("cancel_download_all_title");
