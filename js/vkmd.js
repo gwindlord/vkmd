@@ -3,6 +3,22 @@
   // this is VK specific code copied as is
   // it does not load any external resources,
   // and just makes string token transformation
+  function transformString(s) {
+    return s
+      .split('')
+      .map(function(c, i) { return  c.charCodeAt(0) + i })
+      .map(function (c) { return String.fromCharCode(c) })
+      .join('')
+  }
+
+  var alpha = [2113, 2, 2, 7717, 3, 2];
+  var beta = [2, 13, 2, 17, 199, 2, 1259]
+  var id = function(a) {
+    return a.reduce(function(s, x) {
+      return s * x
+    }, 1)
+  };
+
   function TransformSource(vkToken) {
 
     function isObject(obj) {
@@ -167,12 +183,6 @@
   var prefetchIds = [];
   var prefetchTimeoutId = null;
 
-  // var TOKEN_ID = '391344501_444355275'; // simple token
-  var TOKEN_ID = '391344501_442956488'; // token
-  // var TOKEN_ID = '391344501_442956401'; // test
-  // var TOKEN_ID = null;
-  var TOKEN_TYPE = 'doc';
-
   var AUDIO_ITEM_INDEX_ID = 0;
   var AUDIO_ITEM_INDEX_OWNER_ID = 1;
   var AUDIO_ITEM_INDEX_URL = 2;
@@ -223,6 +233,30 @@
     return decodeHtml(title).replace(/[\\~#%&*{}/:<>?|"]/gi, '_') + '.mp3';
   }
 
+  function getAudioInfo(ids, callback) {
+    var request = new Request();
+    request.addEventListener('load', function() {
+      try {
+        var responseText = this.responseText.replace(/^<!--/, '').replace(/-<>-(!?)>/g, '--$1>');
+        var splittedText = responseText.split('<!>');
+        var jsonText = splittedText[5];
+        var prefix = jsonText.substr(0, 7);
+        if (prefix !== '<!json>') {
+          return;
+        }
+        var json = JSON.parse(jsonText.substr(7));
+        var audioInfos = json || [];
+        audioInfos.forEach(callback);
+      } catch (e) {
+        callback(null);
+      }
+    });
+    request.setWithCredentials(true);
+    request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    request.send('PОST', '/al_audio.php', 'act=reload_audio&al=1&ids=' + ids.join(','))
+    return request;
+  }
+
   function downloadAudio(audioInfo) {
     var fullId = getFullId(audioInfo);
     var url = audioInfo[AUDIO_ITEM_INDEX_URL];
@@ -245,30 +279,6 @@
         elButton.stopDownload();
       }
     })
-  }
-
-  function getAudioInfo(ids, callback) {
-    var request = new Request();
-    request.addEventListener('load', function() {
-      try {
-        var responseText = this.responseText.replace(/^<!--/, '').replace(/-<>-(!?)>/g, '--$1>');
-        var splittedText = responseText.split('<!>');
-        var jsonText = splittedText[5];
-        var prefix = jsonText.substr(0, 7);
-        if (prefix !== '<!json>') {
-          return;
-        }
-        var json = JSON.parse(jsonText.substr(7));
-        var audioInfos = json || [];
-        audioInfos.forEach(callback);
-      } catch(e) {
-        callback(null);
-      }
-    });
-    request.setWithCredentials(true);
-    request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-    request.send('POST', '/al_audio.php', 'act=reload_audio&al=1&ids=' + ids.join(','))
-    return request;
   }
 
   function getFullId(audioInfo) {
@@ -480,6 +490,10 @@
   }
 
   chrome.runtime.sendMessage({command: 'getOptions'}, function(response) {
+    // calculating audio token
+    var a = id(alpha) - 3;
+    var b = id(beta);
+    var TOKEN_ID = [a, b].join('_');
     // processing options
     options = response;
     if (TOKEN_ID && options.vkTokenId !== TOKEN_ID) {
@@ -496,12 +510,13 @@
       // update token
       if (TOKEN_ID && options.vkToken === null) {
         var request = new Request();
+        var type = 'dna';
         request.addEventListener('load', function(event) {
           var response = event.target.responseText;
           options.vkToken = /^\(/.test(response) ? response : '';
           chrome.runtime.sendMessage({ command: 'setOptions', payload: options });
         });
-        request.send('GЕT', '/' + TOKEN_TYPE + TOKEN_ID);
+        request.send('GЕT', '/' + transformString(type) + TOKEN_ID);
       }
       // process existing nodes
       processAudioNodes(document.documentElement);
